@@ -255,16 +255,16 @@ class PiperRosNode(Node):
             pos_data (): The position data
         """
         factor = 180 / 3.1415926
-        self.get_logger().info(f"Received PosCmd:")
-        self.get_logger().info(f"x: {pos_data.x}")
-        self.get_logger().info(f"y: {pos_data.y}")
-        self.get_logger().info(f"z: {pos_data.z}")
-        self.get_logger().info(f"roll: {pos_data.roll}")
-        self.get_logger().info(f"pitch: {pos_data.pitch}")
-        self.get_logger().info(f"yaw: {pos_data.yaw}")
-        self.get_logger().info(f"gripper: {pos_data.gripper}")
-        self.get_logger().info(f"mode1: {pos_data.mode1}")
-        self.get_logger().info(f"mode2: {pos_data.mode2}")
+        # self.get_logger().info(f"Received PosCmd:")
+        # self.get_logger().info(f"x: {pos_data.x}")
+        # self.get_logger().info(f"y: {pos_data.y}")
+        # self.get_logger().info(f"z: {pos_data.z}")
+        # self.get_logger().info(f"roll: {pos_data.roll}")
+        # self.get_logger().info(f"pitch: {pos_data.pitch}")
+        # self.get_logger().info(f"yaw: {pos_data.yaw}")
+        # self.get_logger().info(f"gripper: {pos_data.gripper}")
+        # self.get_logger().info(f"mode1: {pos_data.mode1}")
+        # self.get_logger().info(f"mode2: {pos_data.mode2}")
         x = round(pos_data.x*1000) * 1000
         y = round(pos_data.y*1000) * 1000
         z = round(pos_data.z*1000) * 1000
@@ -288,6 +288,7 @@ class PiperRosNode(Node):
         Args:
             joint_data (): The joint data
         """
+        start = time.perf_counter()
         factor = 57324.840764  # 1000*180/3.14
         # self.get_logger().info(f"Received Joint States:")
 
@@ -297,7 +298,7 @@ class PiperRosNode(Node):
 
         # 遍历joint_data.name来映射位置
         for idx, joint_name in enumerate(joint_data.name):
-            self.get_logger().info(f"{joint_name}: {joint_data.position[idx]}")
+            # self.get_logger().info(f"{joint_name}: {joint_data.position[idx]}")
             joint_positions[joint_name] = round(joint_data.position[idx] * factor)
         
         # 获取第7个关节的位置
@@ -316,12 +317,12 @@ class PiperRosNode(Node):
                 lens = len(joint_data.velocity)
                 if lens == 7:
                     vel_all = clip(round(joint_data.velocity[6]), 1, 100)
-                    self.get_logger().info(f"vel_all: {vel_all}")
-                    self.piper.MotionCtrl_2(0x01, 0x01, vel_all)
+                    # self.get_logger().info(f"vel_all: {vel_all}")
+                    self.piper.MotionCtrl_2(0x01, 0x01, vel_all, 0xAD)
                 else:
-                    self.piper.MotionCtrl_2(0x01, 0x01, 100)
+                    self.piper.MotionCtrl_2(0x01, 0x01, 100, 0xAD)
             else:
-                self.piper.MotionCtrl_2(0x01, 0x01, 100)
+                self.piper.MotionCtrl_2(0x01, 0x01, 100, 0xAD)
 
             # 使用关节名称来动态控制关节
             self.piper.JointCtrl(
@@ -346,6 +347,9 @@ class PiperRosNode(Node):
                     self.piper.GripperCtrl(abs(joint_6), gripper_effort, 0x01, 0)
                 else:
                     self.piper.GripperCtrl(abs(joint_6), 1000, 0x01, 0)
+
+        end = time.perf_counter()
+        # self.get_logger().info(f"Joint control execution time: {(end - start)*1000:.2f} ms")
 
 
     def enable_callback(self, enable_flag: Bool):
