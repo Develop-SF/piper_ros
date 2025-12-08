@@ -75,6 +75,7 @@ sudo apt update && sudo apt install can-utils ethtool
 
 如果执行bash脚本出现`ip: command not found`，请安装ip指令，一般是`sudo apt-get install iproute2`
 
+##  (方法一：不好用每次重插拔都會跑掉)
 ### 2.1 寻找can模块
 
 执行
@@ -204,6 +205,74 @@ USB_PORTS["3-1.1:1.0"]="can_right:1000000"
 #### 2.3.4 查看多个can模块是否设置成功
 
 执行`ifconfig`查看是不是有`can_left`和`can_right`
+
+##  (方法二)
+在 host PC（不要進去 container）新增 **`udev rules`** 讓這個 USB 裝置每次被偵測到時，就會出現固定的名稱，才不需要一直去重新填寫 USB port number。
+
+1. 確認 host 看得到 can0/can1（先插上 PiPER USB 裝置）：
+
+```bash
+ip -br link show type can
+```
+
+1. 查看 USB 裝置細節：
+
+```bash
+sudo udevadm info -a -p /sys/class/net/can0
+```
+
+1. 在這一長串輸出裡面找這些欄位（上層的 `ATTRS{}`）：
+    - `ATTRS{idVendor}`
+    - `ATTRS{idProduct}`
+    - `ATTRS{serial}`（如果有，這個最好用）
+
+---
+
+4. Sample：用 serial 綁定成固定名稱
+
+假設你在 `udevadm info -a -p /sys/class/net/can0` 裡找到：
+
+```
+ATTRS{idVendor}=="1d50"
+ATTRS{idProduct}=="606f"
+ATTRS{serial}=="ABC12345"
+```
+
+那你可以在 **host** 上建立 rule：
+
+```bash
+sudo vim /etc/udev/rules.d/99-usb-can.rules
+```
+
+**99-can-usb.rules**
+
+```bash
+# Device 1 serial no.   002400285246571220393733
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", ATTRS{serial}=="002400285246571220393733", NAME="piper_leader"
+
+# Device 2: serial no.  0036003D5746571520383839
+SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", ATTRS{serial}=="0036003D5746571520383839", NAME="piper_follower"
+
+```
+
+然後 reload 規則並觸發：
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger -s net
+```
+
+或是簡單一點：拔掉兩支 USB-CAN 再插回去。
+
+<aside>
+👉
+
+**注意！！！！**
+
+USB 接線時，盡量不要連接超過 1 個 hub，會收不到訊號。**除非有將 hub 進行額外的供電，才可**。
+
+</aside>
+
 
 ## 3 运行节点
 
