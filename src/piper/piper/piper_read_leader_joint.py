@@ -108,17 +108,18 @@ class PiperRosNode(Node):
         vel = 100.0
         effort = 10.0
         if self.gripper_exist:
-            gripper_stroke: float = self.piper.GetArmGripperCtrl().gripper_ctrl.grippers_angle / 1000000
-            gripper_effort:float = self.piper.GetArmGripperCtrl().gripper_ctrl.grippers_effort/1000
+            # normalize gripper angle and clamp to [0.0, +inf)
+            gripper_stroke: float = max(0.0, self.piper.GetArmGripperCtrl().gripper_ctrl.grippers_angle / 3000000)
+            # gripper_effort:float = self.piper.GetArmGripperCtrl().gripper_ctrl.grippers_effort/1000
             self.joint_states_feedback.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
             self.joint_states_feedback.position = [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, gripper_stroke]
-            self.joint_states_feedback.velocity = [vel, vel, vel, vel, vel, vel, 0.0]
-            self.joint_states_feedback.effort = [effort, effort, effort, effort, effort, effort, gripper_effort]
+            self.joint_states_feedback.velocity = [vel, vel, vel, vel, vel, vel, vel]
+            self.joint_states_feedback.effort = [effort, effort, effort, effort, effort, effort, effort]
             # self.joint_states_feedback.header.stamp = self.float_to_ros_time(new_time)
         else:
             self.joint_states_feedback.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6']
             self.joint_states_feedback.position = [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
-            self.joint_states_feedback.velocity = [vel_1, vel_2, vel_3, vel_4, vel_5, vel_6]
+            self.joint_states_feedback.velocity = [vel, vel, vel, vel, vel, vel]
             self.joint_states_feedback.effort = [effort, effort, effort, effort, effort, effort]
             # self.joint_states_feedback.header.stamp = self.float_to_ros_time(new_time)
             
