@@ -24,12 +24,6 @@ def generate_launch_description():
         description='Automatically enable the Piper node.'
     )
 
-    rviz_ctrl_flag_arg = DeclareLaunchArgument(
-        'rviz_ctrl_flag',
-        default_value='false',
-        description='Start rviz flag.'
-    )
-
     gripper_exist_arg = DeclareLaunchArgument(
         'gripper_exist',
         default_value='true',
@@ -40,6 +34,12 @@ def generate_launch_description():
         'gripper_val_mutiple',
         default_value='1',
         description='gripper'
+    )
+
+    prefix_arg = DeclareLaunchArgument(
+        'prefix',
+        default_value='none_',
+        description='Joint/link prefix, e.g. la_piper_ or ra_piper_'
     )
 
     # Define the node
@@ -54,6 +54,7 @@ def generate_launch_description():
             'auto_enable': LaunchConfiguration('auto_enable'),
             'gripper_val_mutiple': LaunchConfiguration('gripper_val_mutiple'),
             'gripper_exist': LaunchConfiguration('gripper_exist'),
+            'prefix': LaunchConfiguration('prefix'),
         }],
         remappings=[
             ('joint_ctrl_single', '/joint_states'),
@@ -68,5 +69,6 @@ def generate_launch_description():
         auto_enable_arg,
         gripper_exist_arg,
         gripper_val_mutiple_arg,
+        prefix_arg,
         piper_node
     ])

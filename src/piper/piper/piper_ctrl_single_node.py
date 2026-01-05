@@ -28,12 +28,14 @@ class PiperRosNode(Node):
         self.declare_parameter('auto_enable', False)
         self.declare_parameter('gripper_exist', True)
         self.declare_parameter('gripper_val_mutiple', 1)
+        self.declare_parameter('prefix', 'none_')
 
         self.can_port = self.get_parameter('can_port').get_parameter_value().string_value
         self.auto_enable = self.get_parameter('auto_enable').get_parameter_value().bool_value
         self.gripper_exist = self.get_parameter('gripper_exist').get_parameter_value().bool_value
         self.gripper_val_mutiple = self.get_parameter('gripper_val_mutiple').get_parameter_value().integer_value
         self.gripper_val_mutiple = max(0, min(self.gripper_val_mutiple, 10))
+        self.prefix = self.get_parameter('prefix').get_parameter_value().string_value
 
         self.get_logger().info(f"can_port is {self.can_port}")
         self.get_logger().info(f"auto_enable is {self.auto_enable}")
@@ -48,21 +50,25 @@ class PiperRosNode(Node):
         self.end_pose_stamped_pub = self.create_publisher(PoseStamped, 'end_pose_stamped', 1)
         # Service
         self.motor_srv = self.create_service(Enable, 'enable_srv', self.handle_enable_service)
+        # joint name 
+        names = [self._p(f"joint{i}") for i in range(1, 7)] + [self._p("joint7")]
         # Joint
         self.joint_states = JointState()
-        self.joint_states.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
+        self.joint_states.name = names  
         self.joint_states.position = [0.0] * 7
         self.joint_states.velocity = [0.0] * 7
         self.joint_states.effort = [0.0] * 7
 
         self.joint_states_feedback = JointState()
-        self.joint_states_feedback.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
+        # self.joint_states_feedback.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
+        self.joint_states_feedback.name = names
         self.joint_states_feedback.position = [0.0] * 7
         self.joint_states_feedback.velocity = [0.0] * 7
         self.joint_states_feedback.effort = [0.0] * 7
         # Joint ctrl
         self.joint_ctrl = JointState()
-        self.joint_ctrl.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
+        # self.joint_ctrl.name = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'gripper']
+        self.joint_ctrl.name = names
         self.joint_ctrl.position = [0.0] * 7
         self.joint_ctrl.velocity = [0.0] * 7
         self.joint_ctrl.effort = [0.0] * 7
@@ -80,6 +86,9 @@ class PiperRosNode(Node):
         self.publisher_thread = threading.Thread(target=self.publish_thread)
         self.publisher_thread.start()
 
+    def _p(self, name: str) -> str:
+        return f"{self.prefix}{name}" if self.prefix else name
+    
     def GetEnableFlag(self):
         return self.__enable_flag
 
@@ -299,7 +308,11 @@ class PiperRosNode(Node):
         # 遍历joint_data.name来映射位置
         for idx, joint_name in enumerate(joint_data.name):
             # self.get_logger().info(f"{joint_name}: {joint_data.position[idx]}")
-            joint_positions[joint_name] = round(joint_data.position[idx] * factor)
+            # joint_positions[joint_name] = round(joint_data.position[idx] * factor)
+            base_name = joint_name
+            if self.prefix and base_name.startswith(self.prefix):
+                base_name = base_name[len(self.prefix):]   # 變回 joint1/joint2...
+            joint_positions[base_name] = round(joint_data.position[idx] * factor)
         
         # 获取第7个关节的位置
         if len(joint_data.position) >= 7:

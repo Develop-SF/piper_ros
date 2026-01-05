@@ -6,12 +6,28 @@ controller_manager:
     arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-
     gripper_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
-
     joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    la_piper_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    la_piper_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    la_piper_joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    ra_piper_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    ra_piper_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    ra_piper_joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
 arm_controller:
@@ -38,5 +54,59 @@ gripper_controller:
       - position
       - velocity
 joint_state_broadcaster:
+  ros__parameters:
+    publish_topic: "/joint_states"
+
+la_piper_arm_controller:
+  ros__parameters:
+    joints:
+      - la_piper_joint1
+      - la_piper_joint2
+      - la_piper_joint3
+      - la_piper_joint4
+      - la_piper_joint5
+      - la_piper_joint6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+la_piper_gripper_controller:
+  ros__parameters:
+    joints:
+      - la_piper_joint7
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+la_piper_joint_state_broadcaster:
+  ros__parameters:
+    publish_topic: "/joint_states"
+
+ra_piper_arm_controller:
+  ros__parameters:
+    joints:
+      - ra_piper_joint1
+      - ra_piper_joint2
+      - ra_piper_joint3
+      - ra_piper_joint4
+      - ra_piper_joint5
+      - ra_piper_joint6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+ra_piper_gripper_controller:
+  ros__parameters:
+    joints:
+      - ra_piper_joint7
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+ra_piper_joint_state_broadcaster:
   ros__parameters:
     publish_topic: "/joint_states"
