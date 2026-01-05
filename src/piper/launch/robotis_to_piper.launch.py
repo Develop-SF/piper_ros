@@ -9,14 +9,14 @@ os.environ["RCUTILS_COLORIZED_OUTPUT"] = "1"   # 强制彩色日志
 def generate_launch_description():
     la_namespace_arg = DeclareLaunchArgument(
         'namespace_la',
-        default_value='la_',
-        description='ROS namespace for the node. e.g. la_ / ra_'
+        default_value='la',
+        description='ROS namespace for the node. e.g. la / ra'
     )
 
     ra_namespace_arg = DeclareLaunchArgument(
         'namespace_ra',
-        default_value='ra_',
-        description='ROS namespace for the node. e.g. la_ / ra_'
+        default_value='ra',
+        description='ROS namespace for the node. e.g. la / ra'
     )
 
     # Define the node
@@ -27,7 +27,7 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace_la'),
         output='screen',
         remappings=[
-            ('to_piper/joint_ctrl_single', '/la_piper_/joint_states'),
+            ('to_piper/joint_ctrl_single', '/la_piper/joint_states'),
             ('from_robotis_leader/joint_states', '/la_robotis_as_piper_leader/joint_states'),
         ]
     )
@@ -39,7 +39,7 @@ def generate_launch_description():
         namespace=LaunchConfiguration('namespace_ra'),
         output='screen',
         remappings=[
-            ('to_piper/joint_ctrl_single', '/ra_piper_/joint_states'),
+            ('to_piper/joint_ctrl_single', '/ra_piper/joint_states'),
             ('from_robotis_leader/joint_states', '/ra_robotis_as_piper_leader/joint_states'),
         ]
     )

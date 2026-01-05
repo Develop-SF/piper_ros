@@ -10,7 +10,7 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument(
         'namespace',
         default_value='',
-        description='ROS namespace for the node. e.g. la_piper_ / ra_piper_'
+        description='ROS namespace for the node. e.g. la_piper / ra_piper'
     )
     log_level_arg = DeclareLaunchArgument(
         'log_level',
