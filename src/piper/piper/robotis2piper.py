@@ -45,7 +45,7 @@ class Robotis2Pipper(Node):
         joint1 = max(-1.7453, min((self.latest_positions[3]), 1.7453))  # TODO verify limits
         joint2 = max(0.0, min((self.latest_positions[5] + 1.57), 2.618)) 
         joint3 = max(-2.618, min((self.latest_positions[4] - 2.66), 0.0))
-        joint4 = max(-1.7453, min((-1)*(self.latest_positions[1] - 1.57), 1.7453))
+        joint4 = max(-1.7453, min((self.latest_positions[1] - 1.57), 1.7453))
         joint5 = max(-1.2217, min((self.latest_positions[2] + 1.57), 1.2217))
         joint6 = max(-1.7453, min(((self.latest_positions[0] * -1.0) + 0.33), 1.7453))
         # robotis close ~ open: -0.8 ~ 0
