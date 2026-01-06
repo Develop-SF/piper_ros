@@ -38,7 +38,7 @@ def generate_launch_description():
 
     prefix_arg = DeclareLaunchArgument(
         'prefix',
-        default_value='none_',
+        default_value='',
         description='Joint/link prefix, e.g. la_piper_ or ra_piper_'
     )
 
