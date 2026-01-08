@@ -301,35 +301,43 @@ class PiperRosNode(Node):
         factor = 57324.840764  # 1000*180/3.14
         # self.get_logger().info(f"Received Joint States:")
 
-        # 创建一个字典来存储关节名称与位置的映射
+        # 创建字典来存储关节名称与位置/velocity/effort的映射
         joint_positions = {}
+        joint_velocities = {}
+        joint_efforts = {}
         joint_6 = 0
 
-        # 遍历joint_data.name来映射位置
+        # 遍历joint_data.name来映射位置、velocity和effort
         for idx, joint_name in enumerate(joint_data.name):
             # self.get_logger().info(f"{joint_name}: {joint_data.position[idx]}")
-            # joint_positions[joint_name] = round(joint_data.position[idx] * factor)
             base_name = joint_name
             if self.prefix and base_name.startswith(self.prefix):
                 base_name = base_name[len(self.prefix):]   # 變回 joint1/joint2...
             joint_positions[base_name] = round(joint_data.position[idx] * factor)
+
+            if idx < len(joint_data.velocity):
+                joint_velocities[base_name] = joint_data.velocity[idx]
+
+            if idx < len(joint_data.effort):
+                joint_efforts[base_name] = joint_data.effort[idx]
         
-        # 获取第7个关节的位置
-        if len(joint_data.position) >= 7:
-            # self.get_logger().info(f"joint_7: {joint_data.position[6]}")
-            joint_6 = round(joint_data.position[6] * 1000 * 1000)
+        # (gripper)的位置，名稱可能是 joint7 或 gripper
+        gripper_key = 'joint7' if 'joint7' in joint_positions else 'gripper' if 'gripper' in joint_positions else None
+        if gripper_key:
+            # gripper 的值是用 factor 轉換的，需要還原後再乘以 1000 * 1000
+            joint_6 = round(joint_positions[gripper_key] / factor * 1000 * 1000)
             joint_6 = joint_6 * self.gripper_val_mutiple
 
         # 控制电机速度
         if self.GetEnableFlag():
-            if joint_data.velocity != []:
-                all_zeros = all(v == 0 for v in joint_data.velocity)
+            if joint_velocities:
+                all_zeros = all(v == 0 for v in joint_velocities.values())
             else:
                 all_zeros = True
             if not all_zeros:
-                lens = len(joint_data.velocity)
-                if lens == 7:
-                    vel_all = clip(round(joint_data.velocity[6]), 1, 100)
+                # 用 gripper_key 找對應的 velocity，名稱可能是 joint7 或 gripper
+                if gripper_key and gripper_key in joint_velocities:
+                    vel_all = clip(round(joint_velocities[gripper_key]), 1, 100)
                     # self.get_logger().info(f"vel_all: {vel_all}")
                     self.piper.MotionCtrl_2(0x01, 0x01, vel_all, 0xAD)
                 else:
@@ -349,8 +357,9 @@ class PiperRosNode(Node):
 
             # 夹爪控制
             if self.gripper_exist:
-                if len(joint_data.effort) >= 7:
-                    gripper_effort = clip(joint_data.effort[6], 0.5, 3)
+                # 用 gripper_key 找對應的 effort，名稱可能是 joint7 或 gripper
+                if gripper_key and gripper_key in joint_efforts:
+                    gripper_effort = clip(joint_efforts[gripper_key], 0.5, 3)
                     # self.get_logger().info(f"gripper_effort: {gripper_effort}")
                     if not math.isnan(gripper_effort):
                         gripper_effort = round(gripper_effort * 1000)
