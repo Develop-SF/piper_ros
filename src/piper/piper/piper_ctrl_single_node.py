@@ -297,6 +297,11 @@ class PiperRosNode(Node):
         Args:
             joint_data (): The joint data
         """
+        # ---- Only execute if the joint name prefix matches the specified prefix ----
+        # prefix: '', 'la_piper_', 'ra_piper_'
+        if self.prefix:
+            if not any(n.startswith(self.prefix) for n in joint_data.name):
+                return
         start = time.perf_counter()
         factor = 57324.840764  # 1000*180/3.14
         # self.get_logger().info(f"Received Joint States:")
