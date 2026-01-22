@@ -30,7 +30,6 @@ setup(
             'piper_single_ctrl = piper.piper_ctrl_single_node:main',
             'piper_read_slave_joint = piper.piper_read_slave_joint:main',
             'piper_read_leader_joint = piper.piper_read_leader_joint:main',
-            'piper_cmd_arbiter = piper.piper_cmd_arbiter:main',
             'piper_read_robotis_joint = piper.robotis2piper:main',
         ],
     },
