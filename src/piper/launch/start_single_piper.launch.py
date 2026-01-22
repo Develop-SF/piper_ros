@@ -7,6 +7,11 @@ import os
 os.environ["RCUTILS_COLORIZED_OUTPUT"] = "1"   # 强制彩色日志
 
 def generate_launch_description():
+    namespace_arg = DeclareLaunchArgument(
+        'namespace',
+        default_value='',
+        description='ROS namespace for the node. e.g. la_piper / ra_piper'
+    )
     log_level_arg = DeclareLaunchArgument(
         'log_level',
         default_value='info',
@@ -47,6 +52,7 @@ def generate_launch_description():
         package='piper',
         executable='piper_single_ctrl',
         name='piper_ctrl_single_node',
+        namespace=LaunchConfiguration('namespace'),
         output='screen',
         ros_arguments=['--log-level', LaunchConfiguration('log_level')],
         parameters=[{
@@ -57,13 +63,14 @@ def generate_launch_description():
             'prefix': LaunchConfiguration('prefix'),
         }],
         remappings=[
-            ('joint_ctrl_single', '/joint_states'),
+            ('joint_ctrl_single', 'joint_states'),
             # ('joint_states_feedback', '/joint_states'),
         ]
     )
 
     # Return the LaunchDescription
     return LaunchDescription([
+        namespace_arg,
         log_level_arg,
         can_port_arg,
         auto_enable_arg,
