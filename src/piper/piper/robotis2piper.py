@@ -86,13 +86,13 @@ class Robotis2Pipper(Node):
         p_joint1 = max(-3.14, min(L_j1, 3.14))
         p_joint2 = max(0.0, min((L_j2 + 1.57), 2.618))
         p_joint3 = max(-2.618, min((L_j3 - 2.66), 0.0))
-        p_joint4 = max(-1.7453, min((L_j5 - 1.57), 1.7453))
+        p_joint4 = max(-1.7453, min((-1) * (L_j5 - 1.57), 1.7453))
         p_joint5 = max(-1.2217, min((L_j4 + 1.57), 1.2217))
-        p_joint6 = max(-1.7453, min(((L_j6 * -1.0) + 0.33), 1.7453))
+        p_joint6 = max(-1.7453, min(((L_j6 * -1.0)), 1.7453))
 
         # leader gripper close~open: -0.8 ~ 0
         # piper gripper close~open: 0 ~ 0.035
-        p_gripper = max(0.0, min(((L_gr + 0.8) * 0.04375), 0.035))
+        p_gripper = max(0.0, min(((L_gr + 0.8) * 0.04375), 0.040))
 
         # --- Build output message ---
         out = JointState()
