@@ -7,6 +7,11 @@ import os
 os.environ["RCUTILS_COLORIZED_OUTPUT"] = "1"   # 强制彩色日志
 
 def generate_launch_description():
+    namespace_arg = DeclareLaunchArgument(
+        'namespace',
+        default_value='',
+        description='ROS namespace for the node. e.g. la_piper / ra_piper'
+    )
     log_level_arg = DeclareLaunchArgument(
         'log_level',
         default_value='info',
@@ -24,12 +29,6 @@ def generate_launch_description():
         description='Automatically enable the Piper node.'
     )
 
-    rviz_ctrl_flag_arg = DeclareLaunchArgument(
-        'rviz_ctrl_flag',
-        default_value='false',
-        description='Start rviz flag.'
-    )
-
     gripper_exist_arg = DeclareLaunchArgument(
         'gripper_exist',
         default_value='true',
@@ -42,11 +41,18 @@ def generate_launch_description():
         description='gripper'
     )
 
+    prefix_arg = DeclareLaunchArgument(
+        'prefix',
+        default_value='',
+        description='Joint/link prefix, e.g. la_piper_ or ra_piper_'
+    )
+
     # Define the node
     piper_node = Node(
         package='piper',
         executable='piper_single_ctrl',
         name='piper_ctrl_single_node',
+        namespace=LaunchConfiguration('namespace'),
         output='screen',
         ros_arguments=['--log-level', LaunchConfiguration('log_level')],
         parameters=[{
@@ -54,19 +60,22 @@ def generate_launch_description():
             'auto_enable': LaunchConfiguration('auto_enable'),
             'gripper_val_mutiple': LaunchConfiguration('gripper_val_mutiple'),
             'gripper_exist': LaunchConfiguration('gripper_exist'),
+            'prefix': LaunchConfiguration('prefix'),
         }],
         remappings=[
-            ('joint_ctrl_single', '/joint_states'),
+            ('joint_ctrl_single', 'joint_states'),
             # ('joint_states_feedback', '/joint_states'),
         ]
     )
 
     # Return the LaunchDescription
     return LaunchDescription([
+        namespace_arg,
         log_level_arg,
         can_port_arg,
         auto_enable_arg,
         gripper_exist_arg,
         gripper_val_mutiple_arg,
+        prefix_arg,
         piper_node
     ])
