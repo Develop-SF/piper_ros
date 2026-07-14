@@ -1,6 +1,7 @@
-ACTION=="add", SUBSYSTEM=="usb-serial", DRIVER=="ftdi_sio", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", ATTRS{serial}=="002400285246571220393733", ATTR{latency_timer}="1"
-ACTION=="add", SUBSYSTEM=="usb-serial", DRIVER=="ftdi_sio", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", ATTRS{serial}=="0036003D5746571520383839", ATTR{latency_timer}="1"
-ACTION=="add", SUBSYSTEM=="usb-serial", DRIVER=="ftdi_sio", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", ATTRS{serial}=="0023002D5246570520323934", ATTR{latency_timer}="1"
+# gs_usb CAN adapters (1d50:606f) need no latency_timer rules: that
+# attribute is FTDI usb-serial specific; these devices bind the gs_usb
+# driver (native CAN, no serial layer). Verified: ftdi_sio's device
+# table has no v1D50 entry.
 
 # Device 1 serial no.   002400285246571220393733
 SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="606f", ATTRS{serial}=="002400285246571220393733", NAME="piper_1"
