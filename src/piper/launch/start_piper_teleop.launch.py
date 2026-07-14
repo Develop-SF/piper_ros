@@ -15,12 +15,12 @@ def generate_launch_description():
     # Declare the launch arguments
     can_leader_port_arg = DeclareLaunchArgument(
         'can_leader_port',
-        default_value='piper_leader',
+        default_value='piper_1',
         description='CAN leader port to be used by the Piper node.'
     )
     can_follower_port_arg = DeclareLaunchArgument(
         'can_follower_port',
-        default_value='piper_follower',
+        default_value='piper_2',
         description='CAN follower port to be used by the Piper node.'
     )
 

@@ -1,8 +1,9 @@
 #!/bin/bash
 # interface name -> bitrate
 declare -A CAN_TARGETS
-CAN_TARGETS["piper_leader"]="1000000"
-CAN_TARGETS["piper_follower"]="1000000"
+CAN_TARGETS["piper_1"]="1000000"
+CAN_TARGETS["piper_2"]="1000000"
+CAN_TARGETS["piper_3"]="1000000"
 
 # Whether to ignore CAN quantity check (default false)
 IGNORE_CHECK=false
